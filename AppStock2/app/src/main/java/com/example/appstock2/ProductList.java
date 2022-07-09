@@ -1,0 +1,57 @@
+package com.example.appstock2;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Bundle;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+
+public class ProductList extends AppCompatActivity {
+RecyclerView recyclerView;
+DatabaseReference database;
+Adaptador myApapter;
+ArrayList<Product> lista;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_product_list);
+
+        recyclerView=findViewById(R.id.listproduct);
+        database= FirebaseDatabase.getInstance().getReference("Product");
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        lista=new ArrayList<>();
+        myApapter = new Adaptador(this, lista);
+        recyclerView.setAdapter(myApapter);
+
+        database.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot:snapshot.getChildren()){
+
+                    Product product1=dataSnapshot.getValue(Product.class);
+
+                    lista.add(product1);
+                }
+                myApapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+}
